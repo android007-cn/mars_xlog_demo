@@ -122,9 +122,7 @@ python decode_mars_nocrypt_log_file.py
 
 ### 七、参考资料
 https://github.com/Tencent/mars
-
 http://blog.csdn.net/eclipsexys/article/details/53965065
-
 https://mp.weixin.qq.com/s/cnhuEodJGIbdodh0IxNeXQ
-
 http://blog.csdn.net/tencent_bugly/article/details/53157830
+https://github.com/cxyzy1/Ljw_Mars_Xlog
