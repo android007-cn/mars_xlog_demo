@@ -22,23 +22,21 @@ xlog相比其它日志模块，有如下优点：
 `FileLog.retrieveLogFiles()`
 3. 为保证缓存内容再应用退出时写入了日志文件，建议退出前调用：
 `FileLog.appenderClose()`
-### 五、解密log
-log写入到/sdcard/mars/log/目录
-
-导入log：
-
-```
-adb pull /sdcard/mars/log/MarsXlogDemo_20181109.xlog "E:\mars\log\crypt"
-```
-把log导出至Mars源码log/crypt/这个文件夹
-
-执行脚本（decode_mars_nocrypt_log_file.py在log/crypt目录）
-
+### 五、解码xlog日志文件（分两种情况）
+首先把log文件从手机里导出至Mars源码log/crypt/文件夹下，在命令行切换到该目录下。
+导出文件命令样例：
 
 ```
-python decode_mars_nocrypt_log_file.py
+adb pull /sdcard/mars/log_copy/FileLog_20181109.xlog "E:\mars\log\crypt"
 ```
-当前目录下就会生成解密后的MarsXlogDemo_20181109.xlog.log
+- 文件未做加密
+执行：`python decode_mars_nocrypt_log_file.py`
+- 文件做了加密（初始化时pubKey传入了值，值需要和decode_mars_crypt_log_file.py中PUB_KEY值相同）
+执行：`python decode_mars_crypt_log_file.py`
+注意对于加密场景，执行上面命令前，需要安装pyelliptic，命令为：`pip install pyelliptic==1.5.7`。pip命令在C:\Python27\Scripts\目录下。
+
+当前目录下就会生成解码后的FileLog_20181109.xlog.log
+
 ### 六、编译xlog静态库
 可参考： https://github.com/luojiawei/Ljw_Mars_Xlog/blob/master/README.md
 ### 七、参考资料
@@ -46,4 +44,3 @@ https://github.com/Tencent/mars
 http://blog.csdn.net/eclipsexys/article/details/53965065
 https://mp.weixin.qq.com/s/cnhuEodJGIbdodh0IxNeXQ
 http://blog.csdn.net/tencent_bugly/article/details/53157830
-https://github.com/cxyzy1/Ljw_Mars_Xlog
