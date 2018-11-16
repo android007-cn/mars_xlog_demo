@@ -4,29 +4,33 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Process;
+import android.util.Log;
+
+import java.io.File;
+import java.util.List;
 
 public class FileLog {
     private static final String TAG = FileLog.class.getSimpleName();
-
-    public static final int LEVEL_VERBOSE = 0;
-    public static final int LEVEL_DEBUG = 1;
-    public static final int LEVEL_INFO = 2;
-    public static final int LEVEL_WARNING = 3;
-    public static final int LEVEL_ERROR = 4;
-    public static final int LEVEL_FATAL = 5;
-    public static final int LEVEL_NONE = 6;
     private static LogImp logImp;
-    // defaults to LEVEL_NONE
-    private static int level = LEVEL_NONE;
-    public static Context toastSupportContext = null;
+    private static final String CACHE_DIR_SUFFIX = "/mars/cache_log";
+    private static final String LOG_DIR_SUFFIX = "/mars/log";
+    private static final String LOG_COPY_DIR_SUFFIX = "/mars/log_copy";
+    private static final String LOG_FILE_PREFIX = "FileLog";
+    private static String appDataPath;
+    private static String cacheDir;
+    private static String logDir;
+    private static String logCopyDir;
 
     public static void init(Context context, String pubKey) {
-        String appDataPath = getInternalAppDataPath(context);
-        String cacheDir = appDataPath + "/mars/cachelog";
-        String logDir = appDataPath + "/mars/log";
-        String namePrefix = "FileLog";
-        logImp = new Xlog();
-        Xlog.open(cacheDir, logDir, namePrefix, pubKey);
+
+        if (context != null) {
+            appDataPath = getInternalAppDataPath(context);
+            cacheDir = appDataPath + CACHE_DIR_SUFFIX;
+            logDir = appDataPath + LOG_DIR_SUFFIX;
+            logCopyDir = appDataPath + LOG_COPY_DIR_SUFFIX;
+            logImp = new Xlog();
+            Xlog.open(cacheDir, logDir, LOG_FILE_PREFIX, pubKey);
+        }
     }
 
     public static void init(String cacheDir, String logDir, String namePrefix, String pubKey) {
@@ -34,35 +38,48 @@ public class FileLog {
         Xlog.open(cacheDir, logDir, namePrefix, pubKey);
     }
 
-    public static String getInternalAppDataPath(Context context) {
+    private static String getInternalAppDataPath(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return context.getApplicationInfo().dataDir;
         }
         return context.getDataDir().getAbsolutePath();
     }
 
+    /**
+     * 将缓存内容写入最终文件，关闭文件
+     */
     public static void appenderClose() {
         if (logImp != null) {
             logImp.appenderClose();
         }
     }
 
+    /**
+     * 获取日志文件。
+     * 先将缓存写入文件，然后清空logCopy目录；
+     * 再将日志从log目录拷贝到logCopy目录，返回目录下文件列表给调用者。
+     */
+    public static String[] retrieveLogFiles() {
+        appenderFlush(true);
+        FileUtil.deleteDir(logCopyDir);
+        File logCopyDirFile = new File(logCopyDir);
+        FileUtil.copyDir(new File(logDir), logCopyDirFile);
+        return logCopyDirFile.list();
+    }
+
+    /**
+     * 将缓存写如到文件中
+     *
+     * @param isSync 是否同步写
+     */
     public static void appenderFlush(boolean isSync) {
         if (logImp != null) {
             logImp.appenderFlush(isSync);
         }
     }
 
-    public static int getLogLevel() {
-        if (logImp != null) {
-            return logImp.getLogLevel();
-        }
-        return LEVEL_NONE;
-    }
-
     public static void setLevel(final int level, final boolean jni) {
-        FileLog.level = level;
-        android.util.Log.w(TAG, "new log level: " + level);
+        Log.w(TAG, "new log level: " + level);
 
         if (jni) {
             Xlog.setLogLevel(level);
@@ -71,9 +88,6 @@ public class FileLog {
 
     /**
      * use f(tag, format, obj) instead
-     *
-     * @param tag
-     * @param msg
      */
     public static void f(final String tag, final String msg) {
         f(tag, msg, (Object[]) null);
@@ -81,9 +95,6 @@ public class FileLog {
 
     /**
      * use e(tag, format, obj) instead
-     *
-     * @param tag
-     * @param msg
      */
     public static void e(final String tag, final String msg) {
         e(tag, msg, (Object[]) null);
@@ -91,9 +102,6 @@ public class FileLog {
 
     /**
      * use w(tag, format, obj) instead
-     *
-     * @param tag
-     * @param msg
      */
     public static void w(final String tag, final String msg) {
         w(tag, msg, (Object[]) null);
@@ -101,9 +109,6 @@ public class FileLog {
 
     /**
      * use i(tag, format, obj) instead
-     *
-     * @param tag
-     * @param msg
      */
     public static void i(final String tag, final String msg) {
         i(tag, msg, (Object[]) null);
@@ -111,9 +116,6 @@ public class FileLog {
 
     /**
      * use d(tag, format, obj) instead
-     *
-     * @param tag
-     * @param msg
      */
     public static void d(final String tag, final String msg) {
         d(tag, msg, (Object[]) null);
@@ -121,9 +123,6 @@ public class FileLog {
 
     /**
      * use v(tag, format, obj) instead
-     *
-     * @param tag
-     * @param msg
      */
     public static void v(final String tag, final String msg) {
         v(tag, msg, (Object[]) null);
@@ -202,20 +201,20 @@ public class FileLog {
     static {
         final StringBuilder sb = new StringBuilder();
         try {
-            sb.append("VERSION.RELEASE:[" + android.os.Build.VERSION.RELEASE);
-            sb.append("] VERSION.CODENAME:[" + android.os.Build.VERSION.CODENAME);
-            sb.append("] VERSION.INCREMENTAL:[" + android.os.Build.VERSION.INCREMENTAL);
-            sb.append("] BOARD:[" + android.os.Build.BOARD);
-            sb.append("] DEVICE:[" + android.os.Build.DEVICE);
-            sb.append("] DISPLAY:[" + android.os.Build.DISPLAY);
-            sb.append("] FINGERPRINT:[" + android.os.Build.FINGERPRINT);
-            sb.append("] HOST:[" + android.os.Build.HOST);
-            sb.append("] MANUFACTURER:[" + android.os.Build.MANUFACTURER);
-            sb.append("] MODEL:[" + android.os.Build.MODEL);
-            sb.append("] PRODUCT:[" + android.os.Build.PRODUCT);
-            sb.append("] TAGS:[" + android.os.Build.TAGS);
-            sb.append("] TYPE:[" + android.os.Build.TYPE);
-            sb.append("] USER:[" + android.os.Build.USER + "]");
+            sb.append("VERSION.RELEASE:[").append(Build.VERSION.RELEASE);
+            sb.append("] VERSION.CODENAME:[").append(Build.VERSION.CODENAME);
+            sb.append("] VERSION.INCREMENTAL:[").append(Build.VERSION.INCREMENTAL);
+            sb.append("] BOARD:[").append(Build.BOARD);
+            sb.append("] DEVICE:[").append(Build.DEVICE);
+            sb.append("] DISPLAY:[").append(Build.DISPLAY);
+            sb.append("] FINGERPRINT:[").append(Build.FINGERPRINT);
+            sb.append("] HOST:[").append(Build.HOST);
+            sb.append("] MANUFACTURER:[").append(Build.MANUFACTURER);
+            sb.append("] MODEL:[").append(Build.MODEL);
+            sb.append("] PRODUCT:[").append(Build.PRODUCT);
+            sb.append("] TAGS:[").append(Build.TAGS);
+            sb.append("] TYPE:[").append(Build.TYPE);
+            sb.append("] USER:[").append(Build.USER).append("]");
         } catch (Throwable e) {
             e.printStackTrace();
         }

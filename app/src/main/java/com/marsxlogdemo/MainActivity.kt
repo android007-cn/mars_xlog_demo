@@ -16,7 +16,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        writeLogBtn!!.setOnClickListener { FileLog.d("test", "write log." + Date()) }
+        writeLogBtn!!.setOnClickListener { FileLog.d("test", "write log.") }
+        writeToFileBtn!!.setOnClickListener { FileLog.retrieveLogFiles() }
         // 申请权限
         checkPermission()
 
