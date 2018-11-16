@@ -12,8 +12,15 @@ xlog相比其它日志模块，有如下优点：
 2. 不丢失任何一行日志。
 3. 避免系统卡顿。
 4. 避免CPU波峰。
-
-### 六、解密log
+### 四、API调用
+本demo对xlog原始的API做了精简，更易于使用了。
+1. 写日志
+`FileLog.d("tag", "write log.")`
+2. 获取日志文件：
+`FileLog.retrieveLogFiles()`
+3. 为保证缓存内容再应用退出时写入了日志文件，建议退出前调用：
+`FileLog.appenderClose()`
+### 五、解密log
 log写入到/sdcard/mars/log/目录
 
 导入log：
@@ -30,7 +37,7 @@ adb pull /sdcard/mars/log/MarsXlogDemo_20181109.xlog "E:\mars\log\crypt"
 python decode_mars_nocrypt_log_file.py
 ```
 当前目录下就会生成解密后的MarsXlogDemo_20181109.xlog.log
-### 编译xlog静态库
+### 六、编译xlog静态库
 可参考： https://github.com/luojiawei/Ljw_Mars_Xlog/blob/master/README.md
 ### 七、参考资料
 https://github.com/Tencent/mars
