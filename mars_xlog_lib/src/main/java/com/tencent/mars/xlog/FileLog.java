@@ -64,7 +64,13 @@ public class FileLog {
         FileUtil.deleteDir(logCopyDir);
         File logCopyDirFile = new File(logCopyDir);
         FileUtil.copyDir(new File(logDir), logCopyDirFile);
-        return logCopyDirFile.list();
+        File[] files = logCopyDirFile.listFiles();
+        String[] filePathArr = new String[files.length];
+        for(int i=0;i<files.length;i++)
+        {
+            filePathArr[i] = files[i].getAbsolutePath();
+        }
+        return filePathArr;
     }
 
     /**

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class FileUtil {
+class FileUtil {
     public static boolean deleteDir(String path) {
         return new File(path).delete();
     }

@@ -8,6 +8,7 @@ import com.tencent.mars.xlog.FileLog
 import kotlinx.android.synthetic.main.activity_main.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+import java.io.File
 
 class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
@@ -28,8 +29,9 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         var files = FileLog.retrieveLogFiles()
         var sb = StringBuilder()
         files.apply {
-            for (item in files) {
-                sb.append("$item\n")
+            for (file in files) {
+                val fileSize = File(file).length()
+                sb.append("$file,size:$fileSize\n")
             }
             Toast.makeText(applicationContext, sb.toString(), Toast.LENGTH_SHORT).show()
         }
