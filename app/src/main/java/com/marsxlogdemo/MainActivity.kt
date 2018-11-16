@@ -8,7 +8,6 @@ import com.tencent.mars.xlog.FileLog
 import kotlinx.android.synthetic.main.activity_main.*
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import java.util.*
 
 class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
@@ -17,7 +16,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         setContentView(R.layout.activity_main)
 
         writeLogBtn!!.setOnClickListener { FileLog.d("test", "write log.") }
-        writeToFileBtn!!.setOnClickListener { FileLog.retrieveLogFiles() }
+        writeToFileBtn!!.setOnClickListener { retrieveLogFiles() }
         // 申请权限
         checkPermission()
 
@@ -25,8 +24,19 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         initFileLog()
     }
 
+    private fun retrieveLogFiles() {
+        var files = FileLog.retrieveLogFiles()
+        var sb = StringBuilder()
+        files.apply {
+            for (item in files) {
+                sb.append("$item\n")
+            }
+            Toast.makeText(applicationContext, sb.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun initFileLog() {
-        FileLog.init(applicationContext,"")
+        FileLog.init(applicationContext, "")
     }
 
     override fun onDestroy() {

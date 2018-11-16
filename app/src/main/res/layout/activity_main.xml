@@ -25,6 +25,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginBottom="113dp"
-        android:text="写入文件" />
+        android:text="获取日志文件" />
 
 </RelativeLayout>
