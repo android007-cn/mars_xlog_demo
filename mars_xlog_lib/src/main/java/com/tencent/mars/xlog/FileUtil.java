@@ -9,12 +9,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 class FileUtil {
-    public static boolean deleteDir(String path) {
-        return new File(path).delete();
+    public static void deleteFileOrDir(File file) {
+        if (file.isDirectory()) {
+            File[] fileArr = file.listFiles();
+            for (File fileInArr : fileArr) {
+                deleteFileOrDir(fileInArr);
+            }
+        } else {
+            file.delete();
+        }
     }
 
     public static boolean copyDir(final File srcDir,
-                                   final File destDir) {
+                                  final File destDir) {
         if (srcDir == null || destDir == null) {
             return false;
         }

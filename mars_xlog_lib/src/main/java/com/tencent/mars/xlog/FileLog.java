@@ -7,7 +7,6 @@ import android.os.Process;
 import android.util.Log;
 
 import java.io.File;
-import java.util.List;
 
 public class FileLog {
     private static final String TAG = FileLog.class.getSimpleName();
@@ -61,9 +60,11 @@ public class FileLog {
      */
     public static String[] retrieveLogFiles() {
         appenderFlush(true);
-        FileUtil.deleteDir(logCopyDir);
         File logCopyDirFile = new File(logCopyDir);
-        FileUtil.copyDir(new File(logDir), logCopyDirFile);
+        File logDirFile = new File(logDir);
+        FileUtil.deleteFileOrDir(logCopyDirFile);
+        FileUtil.copyDir(logDirFile, logCopyDirFile);
+        FileUtil.deleteFileOrDir(logDirFile);
         File[] files = logCopyDirFile.listFiles();
         String[] filePathArr = new String[files.length];
         for(int i=0;i<files.length;i++)

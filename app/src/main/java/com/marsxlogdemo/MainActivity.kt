@@ -28,13 +28,17 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private fun retrieveLogFiles() {
         var files = FileLog.retrieveLogFiles()
         var sb = StringBuilder()
-        files.apply {
+        files?.apply {
             for (file in files) {
                 val fileSize = File(file).length()
                 sb.append("$file,size:$fileSize\n")
             }
-            Toast.makeText(applicationContext, sb.toString(), Toast.LENGTH_SHORT).show()
         }
+        var result = sb.toString()
+        if (result.isBlank()) {
+            result = "文件内容为空"
+        }
+        Toast.makeText(applicationContext, result, Toast.LENGTH_SHORT).show()
     }
 
     private fun initFileLog() {

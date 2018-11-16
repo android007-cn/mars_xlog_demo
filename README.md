@@ -14,7 +14,9 @@ xlog相比其它日志模块，有如下优点：
 4. 避免CPU波峰。
 ### 四、API调用
 本demo对xlog原始的API做了精简，更易于使用了。
-1. 写日志
+1. 初始化
+`FileLog.init(context, "")`
+2. 写日志
 `FileLog.d("tag", "write log.")`
 2. 获取日志文件：
 `FileLog.retrieveLogFiles()`
