@@ -23,11 +23,13 @@
         android:id="@+id/writeToFileBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="获取xlog日志文件"
-        app:layout_constraintBaseline_toBaselineOf="@+id/xlogWriteBtn"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="获取xlog日志文件列表"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/xlogWriteBtn" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/xlogWriteBtn" />
 
     <Button
         android:id="@+id/commonWriteLogBtn"
@@ -55,11 +57,24 @@
         android:id="@+id/xlogWriteBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="136dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="8dp"
         android:text="xlog写日志"
-        app:layout_constraintEnd_toStartOf="@+id/writeToFileBtn"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/writeToFileAsZipBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="获取xlog日志压缩文件"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/writeToFileBtn" />
 
 </android.support.constraint.ConstraintLayout>

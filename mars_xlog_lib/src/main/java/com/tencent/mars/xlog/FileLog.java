@@ -7,6 +7,8 @@ import android.os.Process;
 import android.util.Log;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class FileLog {
     private static final String TAG = FileLog.class.getSimpleName();
@@ -15,6 +17,8 @@ public class FileLog {
     private static final String LOG_DIR_SUFFIX = "/mars/log";
     private static final String LOG_COPY_DIR_SUFFIX = "/mars/log_copy";
     private static final String LOG_FILE_PREFIX = "FileLog";
+    private static final String ZIP_LOG_FILE_PREFIX = "xlog_";
+    private static final String ZIP_LOG_FILE_SUFFIX= ".zip";
     private static String appDataPath;
     private static String cacheDir;
     private static String logDir;
@@ -72,6 +76,35 @@ public class FileLog {
             filePathArr[i] = files[i].getAbsolutePath();
         }
         return filePathArr;
+    }
+
+    /**
+     * 获取日志文件；
+     * 先将缓存写入文件，然后将log目录下文件打包到压缩包中，清空log目录下文件；
+     * 将压缩包的路径返回给调用者。
+     */
+    public static String retrieveLogFilesAsZip() {
+        appenderFlush(true);
+        File logCopyDirFile = new File(logCopyDir);
+        File logDirFile = new File(logDir);
+        FileUtil.deleteFileOrDir(logCopyDirFile);
+
+        String zipFilePath = getZipLogFilePath();
+        try {
+            FileUtil.generateZip(logDirFile.listFiles(),zipFilePath);
+            FileUtil.deleteFileOrDir(logDirFile);
+        } catch (Exception e) {
+            Log.e(TAG,e.getMessage());
+        }
+        return zipFilePath;
+    }
+
+    private static String getZipLogFilePath() {
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String currentTime = sdf.format(now);
+        String zipFileName = ZIP_LOG_FILE_PREFIX+currentTime+ZIP_LOG_FILE_SUFFIX;
+        return logCopyDir+"/"+zipFileName;
     }
 
     /**

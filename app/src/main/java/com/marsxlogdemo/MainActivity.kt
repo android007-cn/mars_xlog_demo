@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         xlogBatchWriteBtn!!.setOnClickListener { xlogBatchWriteLog() }
         commonWriteLogBtn!!.setOnClickListener { commonFileBatchWriteLog() }
         writeToFileBtn!!.setOnClickListener { retrieveLogFiles() }
+        writeToFileAsZipBtn!!.setOnClickListener { retrieveLogFileAsZip() }
         // 申请权限
         checkPermission()
 
@@ -73,6 +74,15 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         var result = sb.toString()
         if (result.isBlank()) {
             result = "文件内容为空"
+        }
+        infoTv.text = result
+    }
+
+    private fun retrieveLogFileAsZip() {
+        var file = FileLog.retrieveLogFilesAsZip()
+        var result = file
+        if (!File(file).exists()) {
+            result = "文件不存在"
         }
         infoTv.text = result
     }
