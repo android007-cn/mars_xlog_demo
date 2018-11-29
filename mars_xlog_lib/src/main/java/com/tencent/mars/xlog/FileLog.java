@@ -23,10 +23,12 @@ public class FileLog {
     private static String cacheDir;
     private static String logDir;
     private static String logCopyDir;
+    private static String mPubKey;
 
     public static void init(Context context, String pubKey) {
         if (context != null) {
             appDataPath = getInternalAppDataPath(context);
+            mPubKey = pubKey;
             cacheDir = appDataPath + CACHE_DIR_SUFFIX;
             logDir = appDataPath + LOG_DIR_SUFFIX;
             logCopyDir = appDataPath + LOG_COPY_DIR_SUFFIX;
@@ -34,8 +36,12 @@ public class FileLog {
             FileUtil.createOrExistsDir(new File(logDir));
             FileUtil.createOrExistsDir(new File(logCopyDir));
             logImp = new Xlog();
-            Xlog.open(cacheDir, logDir, LOG_FILE_PREFIX, pubKey);
+            initXlog();
         }
+    }
+
+    private static void initXlog() {
+        Xlog.open(cacheDir, logDir, LOG_FILE_PREFIX, mPubKey);
     }
 
     public static void init(String cacheDir, String logDir, String namePrefix, String pubKey) {
@@ -60,12 +66,14 @@ public class FileLog {
     }
 
     /**
-     * 获取日志文件。
-     * 先将缓存写入文件，然后清空logCopy目录；
-     * 再将日志从log目录拷贝到logCopy目录，返回目录下文件列表给调用者。
+     * 获取日志文件列表。
+     * 关闭日志文件(xlog自动将缓存内容写入日志文件)；
+     * 然后清空logCopy目录；
+     * 再将日志从log目录拷贝到logCopy目录，返回目录下文件列表给调用者；
+     * 再次打开xlog允许日志写入。
      */
     public static String[] retrieveLogFiles() {
-        appenderFlush(true);
+        appenderClose();
         File logCopyDirFile = new File(logCopyDir);
         File logDirFile = new File(logDir);
         FileUtil.deleteFileOrDir(logCopyDirFile);
@@ -76,16 +84,19 @@ public class FileLog {
         for (int i = 0; i < files.length; i++) {
             filePathArr[i] = files[i].getAbsolutePath();
         }
+        initXlog();
         return filePathArr;
     }
 
     /**
-     * 获取日志文件；
+     * 获取日志文件列表。
+     * 关闭日志文件(xlog自动将缓存内容写入日志文件)；
      * 先将缓存写入文件，然后将log目录下文件打包到压缩包中，清空log目录下文件；
-     * 将压缩包的路径返回给调用者。
+     * 将压缩包的路径返回给调用者；
+     * 再次打开xlog允许日志写入。
      */
     public static String retrieveLogFilesAsZip() {
-        appenderFlush(true);
+        appenderClose();
         File logCopyDirFile = new File(logCopyDir);
         File logDirFile = new File(logDir);
         FileUtil.delFilesInDir(logCopyDirFile);
@@ -97,9 +108,13 @@ public class FileLog {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
+        initXlog();
         return zipFilePath;
     }
 
+    /**
+     * 生成日志压缩文件路径（在logCopyDir目录下）
+     */
     private static String getZipLogFilePathInLogCopyDir() {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -109,7 +124,7 @@ public class FileLog {
     }
 
     /**
-     * 将缓存写如到文件中
+     * 将缓存写到文件中，但是文件未关闭，此时文件还不完整，必须调用appenderClose才行。
      *
      * @param isSync 是否同步写
      */
