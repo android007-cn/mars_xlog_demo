@@ -19,10 +19,10 @@ xlog相比其它日志模块，有如下优点：
 `FileLog.init(context, "")`
 2. 写日志
 `FileLog.d("tag", "write log.")`
-2. 获取日志文件：
+3. 获取日志文件：
 获取日志文件列表：`FileLog.retrieveLogFiles()`
 获取打包到一个zip文件的日志：`FileLog.retrieveLogFilesAsZip()`
-3. 为保证缓存内容再应用退出时写入了日志文件，建议退出前调用：
+4. 为保证缓存内容再应用退出时写入了日志文件，建议退出前调用：
 `FileLog.appenderClose()`
 ### 五、解码xlog日志文件（分两种情况）
 需要先下载python 2.7（本文档写作使用的2.7.15 x86版本，非x86_64版本）
