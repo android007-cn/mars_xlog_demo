@@ -39,9 +39,9 @@ xlog相比其它日志模块，有如下优点：
 - 4：输出error日志及以上
 - 5：输出fatal日志及以上
 - 6：不输出任何日志
-### 五、混淆设置
+6. 混淆设置
 proguard文件中添加`-keep class com.tencent.mars.xlog.** { *; }`
-### 六、解码xlog日志文件（分两种情况）
+### 五、解码xlog日志文件（分两种情况）
 需要先下载python 2.7（本文档写作使用的2.7.15 x86版本，非x86_64版本）
 2.7.15 x86版本下载地址：https://www.python.org/ftp/python/2.7.15/python-2.7.15.msi
 
