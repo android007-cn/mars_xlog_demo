@@ -13,24 +13,26 @@ import java.util.Date;
 public class FileLog {
     private static final String TAG = FileLog.class.getSimpleName();
     private static LogImp logImp;
-    private static final String CACHE_DIR_SUFFIX = "/mars/cache_log";
-    private static final String LOG_DIR_SUFFIX = "/mars/log";
-    private static final String LOG_COPY_DIR_SUFFIX = "/mars/log_copy";
+    private static final String CACHE_DIR_SUFFIX = "/xlog/cache_log";
+    private static final String LOG_DIR_SUFFIX = "/xlog/log";
+    private static final String LOG_COPY_DIR_SUFFIX = "/xlog/log_copy";
     private static final String LOG_FILE_PREFIX = "FileLog";
     private static final String ZIP_LOG_FILE_PREFIX = "xlog_";
-    private static final String ZIP_LOG_FILE_SUFFIX= ".zip";
+    private static final String ZIP_LOG_FILE_SUFFIX = ".zip";
     private static String appDataPath;
     private static String cacheDir;
     private static String logDir;
     private static String logCopyDir;
 
     public static void init(Context context, String pubKey) {
-
         if (context != null) {
             appDataPath = getInternalAppDataPath(context);
             cacheDir = appDataPath + CACHE_DIR_SUFFIX;
             logDir = appDataPath + LOG_DIR_SUFFIX;
             logCopyDir = appDataPath + LOG_COPY_DIR_SUFFIX;
+            FileUtil.createOrExistsDir(new File(cacheDir));
+            FileUtil.createOrExistsDir(new File(logDir));
+            FileUtil.createOrExistsDir(new File(logCopyDir));
             logImp = new Xlog();
             Xlog.open(cacheDir, logDir, LOG_FILE_PREFIX, pubKey);
         }
@@ -71,8 +73,7 @@ public class FileLog {
         FileUtil.deleteFileOrDir(logDirFile);
         File[] files = logCopyDirFile.listFiles();
         String[] filePathArr = new String[files.length];
-        for(int i=0;i<files.length;i++)
-        {
+        for (int i = 0; i < files.length; i++) {
             filePathArr[i] = files[i].getAbsolutePath();
         }
         return filePathArr;
@@ -87,24 +88,24 @@ public class FileLog {
         appenderFlush(true);
         File logCopyDirFile = new File(logCopyDir);
         File logDirFile = new File(logDir);
-        FileUtil.deleteFileOrDir(logCopyDirFile);
+        FileUtil.delFilesInDir(logCopyDirFile);
 
-        String zipFilePath = getZipLogFilePath();
+        String zipFilePath = getZipLogFilePathInLogCopyDir();
         try {
-            FileUtil.generateZip(logDirFile.listFiles(),zipFilePath);
-            FileUtil.deleteFileOrDir(logDirFile);
+            FileUtil.generateZip(logDirFile.listFiles(), zipFilePath);
+            FileUtil.delFilesInDir(logDirFile);
         } catch (Exception e) {
-            Log.e(TAG,e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
         return zipFilePath;
     }
 
-    private static String getZipLogFilePath() {
+    private static String getZipLogFilePathInLogCopyDir() {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String currentTime = sdf.format(now);
-        String zipFileName = ZIP_LOG_FILE_PREFIX+currentTime+ZIP_LOG_FILE_SUFFIX;
-        return logCopyDir+"/"+zipFileName;
+        String zipFileName = ZIP_LOG_FILE_PREFIX + currentTime + ZIP_LOG_FILE_SUFFIX;
+        return logCopyDir + "/" + zipFileName;
     }
 
     /**
@@ -118,12 +119,9 @@ public class FileLog {
         }
     }
 
-    public static void setLevel(final int level, final boolean jni) {
+    public static void setLevel(final int level) {
         Log.w(TAG, "new log level: " + level);
-
-        if (jni) {
-            Xlog.setLogLevel(level);
-        }
+        Xlog.setLogLevel(level);
     }
 
     /**
@@ -231,7 +229,7 @@ public class FileLog {
             if (log == null) {
                 log = "";
             }
-            log += "  " + android.util.Log.getStackTraceString(tr);
+            log += "  " + Log.getStackTraceString(tr);
             logImp.logE(tag, "", "", 0, Process.myPid(), Thread.currentThread().getId(), Looper.getMainLooper().getThread().getId(), log);
         }
     }

@@ -1,5 +1,7 @@
 package com.tencent.mars.xlog;
 
+import android.util.Log;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,11 +9,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 class FileUtil {
+    private static String TAG = "FileUtil";
+
     public static void deleteFileOrDir(File file) {
         if (file.isDirectory()) {
             File[] fileArr = file.listFiles();
@@ -20,6 +23,18 @@ class FileUtil {
             }
         } else {
             file.delete();
+        }
+    }
+
+    /**
+     * 删除目录下所有文件和目录
+     */
+    public static void delFilesInDir(File dirFile) {
+        if (dirFile.isDirectory()) {
+            File[] fileArr = dirFile.listFiles();
+            for (File fileInArr : fileArr) {
+                deleteFileOrDir(fileInArr);
+            }
         }
     }
 
@@ -57,7 +72,7 @@ class FileUtil {
 
     }
 
-    private static boolean createOrExistsDir(final File file) {
+    public static boolean createOrExistsDir(final File file) {
         return file.exists() ? file.isDirectory() : file.mkdirs();
     }
 
@@ -95,7 +110,7 @@ class FileUtil {
     /**
      * 打包成zip包
      */
-    public static void generateZip(File[] files,String outputFilePath) throws Exception {
+    public static void generateZip(File[] files, String outputFilePath) throws Exception {
         ZipOutputStream out = null;
         try {
             byte[] buffer = new byte[1024];
@@ -115,7 +130,7 @@ class FileUtil {
                 fis.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         } finally {
             if (out != null) {
                 out.close();
