@@ -19,12 +19,29 @@ xlog相比其它日志模块，有如下优点：
 `FileLog.init(context, "")`
 2. 写日志
 `FileLog.d("tag", "write log.")`
+写日志可用函数列表：
+- v：verbose级别（默认此级别不打印，如果需要打印，则需要调用setLevel，设置level为0）  
+- d：debug级别
+- i：info级别
+- w：warning级别
+- e：error级别
+- f：fatal级别
 3. 获取日志文件：
 获取日志文件列表：`FileLog.retrieveLogFiles()`
 获取打包到一个zip文件的日志：`FileLog.retrieveLogFilesAsZip()`
 4. 为保证缓存内容再应用退出时写入了日志文件，建议退出前调用：
 `FileLog.appenderClose()`
-### 五、解码xlog日志文件（分两种情况）
+5. 日志打印是可以分级的，调用setLevel即可设置，可用level值如下：
+- 0：输出所有日志
+- 1：输出debug日志及以上
+- 2：输出info日志及以上
+- 3：输出warning日志及以上
+- 4：输出error日志及以上
+- 5：输出fatal日志及以上
+- 6：不输出任何日志
+### 五、混淆设置
+proguard文件中添加`-keep class com.tencent.mars.xlog.** { *; }`
+### 六、解码xlog日志文件（分两种情况）
 需要先下载python 2.7（本文档写作使用的2.7.15 x86版本，非x86_64版本）
 2.7.15 x86版本下载地址：https://www.python.org/ftp/python/2.7.15/python-2.7.15.msi
 
